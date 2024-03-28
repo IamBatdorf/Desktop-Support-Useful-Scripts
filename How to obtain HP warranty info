@@ -1,0 +1,31 @@
+# Function to fetch HP warranty information using the HP Warranty API
+function Get-HPWarrantyInfo {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SerialNumber
+    )
+
+    # HP Warranty API endpoint
+    $Url = "https://support.hp.com/hp-pps-services/osmc/rest/owcs/v4/GetProductWarranty?sn=$SerialNumber"
+
+    try {
+        # Invoke REST API to fetch warranty information
+        $Response = Invoke-RestMethod -Uri $Url -Method Get -ErrorAction Stop
+
+        # Check if there are warranty entries
+        if ($Response.Result -eq "SUCCESS") {
+            $WarrantyInfo = $Response.Products.Product | Select-Object ProductNumber, StartDate, EndDate
+            Write-Output $WarrantyInfo
+        } else {
+            Write-Output "No warranty information found for the serial number: $SerialNumber"
+        }
+    } catch {
+        Write-Error "Error occurred while fetching warranty information: $_"
+    }
+}
+
+# Enter the serial number of your HP laptop
+$SerialNumber = Read-Host "Enter the HP laptop's serial number"
+
+# Call the function to get warranty information
+Get-HPWarrantyInfo -SerialNumber $SerialNumber
