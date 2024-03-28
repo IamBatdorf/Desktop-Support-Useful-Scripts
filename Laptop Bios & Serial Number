@@ -1,0 +1,1 @@
+Get-Wmiobject -Class Win32_BIOS
