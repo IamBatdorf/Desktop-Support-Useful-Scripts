@@ -1,0 +1,34 @@
+# Function to fetch Dell warranty information using the Dell Warranty Status API
+function Get-DellWarrantyInfo {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $ServiceTag
+    )
+
+    # Dell Warranty Status API endpoint
+    $Url = "https://api.dell.com/support/assetinfo/v4/getassetwarranty/{0}?apikey={1}" -f $ServiceTag, $ApiKey
+
+    try {
+        # Invoke REST API to fetch warranty information
+        $Response = Invoke-RestMethod -Uri $Url -Method Get -ErrorAction Stop
+
+        # Check if there are warranty entries
+        if ($Response.AssetWarrantyResponse.ServiceTag) {
+            $WarrantyInfo = $Response.AssetWarrantyResponse.AssetWarrantyInfo
+            Write-Output $WarrantyInfo
+        } else {
+            Write-Output "No warranty information found for the service tag: $ServiceTag"
+        }
+    } catch {
+        Write-Error "Error occurred while fetching warranty information: $_"
+    }
+}
+
+# Enter your Dell API key here
+$ApiKey = "YOUR_DELL_API_KEY"
+
+# Enter the service tag of your Dell laptop
+$ServiceTag = Read-Host "Enter the Dell laptop's service tag"
+
+# Call the function to get warranty information
+Get-DellWarrantyInfo -ServiceTag $ServiceTag
